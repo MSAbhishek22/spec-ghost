@@ -1,0 +1,20 @@
+# Spec Ghost — Render free-tier deploy config (ON PAPER ONLY — NOT deployed).
+# The user deploys this himself (Render signup, stop at once if a card is asked).
+# Free-tier caveats: service sleeps after ~15 min idle, expect a ~60s cold start.
+# Server is stdlib only, binds HOST (set to 0.0.0.0 here) and PORT (Render supplies it),
+# and serves /health. Scan targets are restricted by design: only `sample` and `.`
+# are allowed, anything else returns 400 — so the live demo must use the bundled
+# demo house, not arbitrary paths.
+services:
+  - type: web
+    name: spec-ghost-demo
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt || echo 'stdlib only — nothing to install'"
+    startCommand: "python3 run.py"
+    healthCheckPath: /health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PYTHON_VERSION
+        value: 3.12.0
