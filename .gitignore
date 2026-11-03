@@ -1,0 +1,5 @@
+# Spec Ghost gitignore — NOTE: .kiro/ is deliberately NOT listed here.
+# Kiroween requires /.kiro at the repo root, un-ignored. Never add it.
+__pycache__/
+*.pyc
+runs/

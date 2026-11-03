@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spec Ghost — Haunted Kiro specs, found before they haunt you</title>
+<style>
+:root{--bg:#0f0d0a;--panel:#1a150f;--amber:#f5b942;--amber-dim:#c98f2e;--text:#f2e8d5;--muted:#a8987a}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;margin:0;padding:28px 16px}
+main{max-width:860px;margin:0 auto}
+h1{font-size:36px;color:var(--amber);margin:0;text-shadow:0 0 18px rgba(245,185,66,.35)}
+p.tag{color:var(--muted);font-size:17px}
+button{background:var(--amber);color:#1a1206;border:0;padding:10px 18px;font-size:16px;cursor:pointer;font-family:Georgia,serif}
+button.ghost-btn{background:transparent;color:var(--amber);border:1px solid var(--amber)}
+section{background:var(--panel);border:1px solid #3a2c14;padding:16px;margin:16px 0}
+h2{color:var(--amber);margin:0 0 10px;font-size:20px}
+ul{margin:0;padding-left:20px;line-height:1.7}
+code{font-family:ui-monospace,monospace;font-size:13px;color:#ffd98a}
+.room{display:inline-block;background:#241c10;border:1px solid var(--amber-dim);padding:8px 12px;margin:4px;border-radius:2px}
+.ghost{font-size:22px}
+.small{color:var(--muted);font-size:14px}
+pre{white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,monospace;font-size:13px;color:var(--text)}
+.candle{animation:flicker 3s infinite}
+@keyframes flicker{0%,100%{opacity:1}48%{opacity:.85}52%{opacity:.95}}
+</style></head><body><main>
+<h1 class="candle">🕯️ Spec Ghost</h1>
+<p class="tag">A haunted house for your Kiro specs. Rooms are modules. Ghosts are specs nobody implemented. No AI, no network — just files on disk, read honestly.</p>
+<p><button onclick="scanTarget('sample')">Haunt the demo house</button>
+<button class="ghost-btn" onclick="scanTarget('.')">Haunt this repo itself</button></p>
+<p class="small">The web UI may only scan the bundled demo house or this repo itself. It never reads arbitrary paths.</p>
+<div id="out"></div>
+<script>
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+let lastTarget='sample';
+async function scanTarget(t){
+ lastTarget=t;
+ const r=await fetch('/api/scan?target='+encodeURIComponent(t));
+ const d=await r.json();
+ let h='<section><h2>The house — '+d.spec_count+' specs, '+d.code_file_count+' code files</h2>';
+ h+='<p>Rooms (covered specs): '+(d.covered_specs.length?d.covered_specs.map(s=>'<span class="room">🏠 '+esc(s)+'</span>').join(' '):'none')+'</p>';
+ h+='<p>Ghosts (orphan specs): '+(d.ghost_specs.length?d.ghost_specs.map(s=>'<span class="ghost">👻</span> '+esc(s)+' <button class="ghost-btn" onclick="banish(\''+esc(s)+'\')">Banish plan</button>').join('<br>'):'none — no ghosts tonight')+'</p>';
+ h+='<p>Unmarked corridors (code with no spec):</p><ul>'+d.unmarked_code_files.map(f=>'<li><code>'+esc(f)+'</code></li>').join('')+'</ul>';
+ h+='<p>Stale portraits (spec mentions a file that no longer exists):</p><ul>'+(d.stale_specs.length?d.stale_specs.map(s=>'<li><code>'+esc(s.spec)+'</code> → '+s.missing_files.map(esc).join(', ')+'</li>').join(''):'<li>none</li>')+'</ul>';
+ h+='<p class="small">Spec → code: '+esc(JSON.stringify(d.spec_to_code))+'</p></section><div id="banish"></div>';
+ document.getElementById('out').innerHTML=h;
+}
+async function banish(g){
+ const r=await fetch('/api/banish-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:lastTarget,ghost:g})});
+ const d=await r.json();
+ document.getElementById('banish').innerHTML='<section><h2>Banish plan for 👻 '+esc(g)+'</h2><p class="small">Plan only — Spec Ghost never deletes, moves, or edits files. Approval first, by hand, always.</p><pre>'+esc(d.actions.join('\n'))+'</pre></section>';
+}
+scanTarget('sample');
+</script></main></body></html>
