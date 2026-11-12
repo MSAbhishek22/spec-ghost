@@ -24,8 +24,11 @@ chatbot, an education chatbot, an inventory CRUD app, or a payment
 wrapper. It is a developer tool for the exact workflow this
 hackathon celebrates.
 
-**Kiroween status, honestly:** this is a local build only, ready to
-push later. It is **not** a before-December cash track — Kiroween
+**Kiroween status, honestly:** the code is published in a public
+GitHub repo — https://github.com/MSAbhishek22/spec-ghost (head
+`6d09f7ba`, MIT) — but the project is **not deployed and not
+submitted**, and this local folder is the working copy, not a git
+checkout of that repo. It is **not** a before-December cash track — Kiroween
 winners are announced around February 2027, per the Devpost-linked
 summaries verified 3 Nov 2026 — so do not claim December winnings
 for this project. The cash-goal tracks remain Vultr, Otari, NEAR,
@@ -57,9 +60,10 @@ ClinicLink/Bharat, and PayPal; Kiroween is the long-runway track.
 - **Spec for the tool itself** (`.kiro/specs/spec-ghost/`):
   `requirements.md` (8 requirements with acceptance criteria),
   `design.md` (scanner / server / UI, correctness, error handling),
-  `tasks.md` (implementation checklist, with the post-approval
-  steps left unchecked — repo, credits, real Kiro session, video,
-  Devpost submit — because none of those has happened yet).
+  `tasks.md` (implementation checklist; the repo step is done —
+  see below — while the remaining post-approval steps, credits,
+  real Kiro session, video, and Devpost submit, are still
+  unchecked because none of those has happened yet).
 - **Scanned specs:** any repo's `.kiro/specs/` directory, in the
   standard Kiro shape (a directory per spec, or a lone `.md` file).
 
@@ -118,15 +122,22 @@ must not become a file-reading service for arbitrary paths.
 - **Stale detection is path-based.** It flags mentioned paths
   with a slash that do not exist; generic prose without a path
   is not flagged.
-- **Not deployed, not a public repo, not submitted, no video.**
-  All of those are user taps, listed below.
+- **Not deployed, not submitted, no submission video.** A public
+  GitHub repo DOES exist:
+  https://github.com/MSAbhishek22/spec-ghost (head `6d09f7ba`).
+  The only video is a local internal draft (see
+  `submission/DEMO_VIDEO_MANIFEST.md`) — never a submission video.
+  Deployment and submission are still user taps, listed below.
 
-## What still needs the user (none of this has happened)
+## What still needs the user (items 2–5 have not happened)
 
-1. **Public GitHub repo (user, own account):** create a NEW public
-   repo, push this folder, and verify `/.kiro` is present at root
-   and **not** gitignored. There is a test for the gitignore rule;
-   the repo itself does not exist yet.
+1. **Public GitHub repo — DONE ✅:** the repo exists at
+   https://github.com/MSAbhishek22/spec-ghost (public, `main`,
+   head `6d09f7ba`, MIT), with `/.kiro` present at root and **not**
+   gitignored (verified via the public GitHub API on 3 Nov 2026;
+   a test also enforces the gitignore rule). Caveat: this local
+   folder is NOT a git checkout, and local-vs-remote byte equality
+   is unverified — reconcile before any release claim.
 2. **Kiro credits (user, Devpost Resources tab):** request the
    4,000 free Kiro credits by **1 Dec 2026 12:00 PT**. Do not pay
    for credits; stop if a card is asked.
