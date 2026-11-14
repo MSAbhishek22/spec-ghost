@@ -10,7 +10,7 @@ import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
-from app.specghost import scan, banish_plan
+from app.specghost import banish_plan_for, scan
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ALLOWED = {".": BASE, "sample": os.path.join(BASE, "sample")}
@@ -60,8 +60,9 @@ class Handler(BaseHTTPRequestHandler):
             if target is None:
                 self._send(400, {"error": "Only 'sample' and '.' targets are allowed"})
                 return
-            report = scan(target)
-            self._send(200, banish_plan(body.get("ghost", ""), report))
+            # Light path: the plan needs only ghost status + the spec's
+            # files, so don't pay for a full scan (identical result).
+            self._send(200, banish_plan_for(target, body.get("ghost", "")))
         else:
             self._send(404, {"error": "not found"})
 

@@ -36,7 +36,7 @@ from urllib.parse import parse_qs
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.server import resolve_target  # noqa: E402
-from app.specghost import banish_plan, scan  # noqa: E402
+from app.specghost import banish_plan_for, scan  # noqa: E402
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX_HTML = os.path.join(BASE_DIR, "app", "index.html")
@@ -88,8 +88,10 @@ def handle_post(path: str, environ):
         if target is None:
             return _json({"error": "Only 'sample' and '.' targets are allowed"},
                          400)
-        report = scan(target)
-        return _json(banish_plan(body.get("ghost", ""), report))
+        # Light path, same as app/server.py: banish_plan_for computes
+        # the identical plan from ghost status + the spec's files only,
+        # instead of a redundant full scan of the tree.
+        return _json(banish_plan_for(target, body.get("ghost", "")))
     return _json({"error": "not found"}, 404)
 
 

@@ -35,16 +35,24 @@ async function scanTarget(t){
  const d=await r.json();
  let h='<section><h2>The house — '+d.spec_count+' specs, '+d.code_file_count+' code files</h2>';
  h+='<p>Rooms (covered specs): '+(d.covered_specs.length?d.covered_specs.map(s=>'<span class="room">🏠 '+esc(s)+'</span>').join(' '):'none')+'</p>';
- h+='<p>Ghosts (orphan specs): '+(d.ghost_specs.length?d.ghost_specs.map(s=>'<span class="ghost">👻</span> '+esc(s)+' <button class="ghost-btn" onclick="banish(\''+esc(s)+'\')">Banish plan</button>').join('<br>'):'none — no ghosts tonight')+'</p>';
+ h+='<p>Ghosts (orphan specs): '+(d.ghost_specs.length?d.ghost_specs.map(s=>'<span class="ghost">👻</span> '+esc(s)+' <button class="ghost-btn" onclick="banish(\''+esc(s)+'\',this)">Banish plan</button>').join('<br>'):'none — no ghosts tonight')+'</p>';
  h+='<p>Unmarked corridors (code with no spec):</p><ul>'+d.unmarked_code_files.map(f=>'<li><code>'+esc(f)+'</code></li>').join('')+'</ul>';
  h+='<p>Stale portraits (spec mentions a file that no longer exists):</p><ul>'+(d.stale_specs.length?d.stale_specs.map(s=>'<li><code>'+esc(s.spec)+'</code> → '+s.missing_files.map(esc).join(', ')+'</li>').join(''):'<li>none</li>')+'</ul>';
  h+='<p class="small">Spec → code: '+esc(JSON.stringify(d.spec_to_code))+'</p></section><div id="banish"></div>';
  document.getElementById('out').innerHTML=h;
 }
-async function banish(g){
- const r=await fetch('/api/banish-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:lastTarget,ghost:g})});
- const d=await r.json();
- document.getElementById('banish').innerHTML='<section><h2>Banish plan for 👻 '+esc(g)+'</h2><p class="small">Plan only — Spec Ghost never deletes, moves, or edits files. Approval first, by hand, always.</p><pre>'+esc(d.actions.join('\n'))+'</pre></section>';
+async function banish(g,btn){
+ if(btn){btn.disabled=true;btn.textContent='Planning…';}
+ try{
+  const r=await fetch('/api/banish-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:lastTarget,ghost:g})});
+  const d=await r.json();
+  if(!r.ok||!d.actions){throw new Error('no plan');}
+  document.getElementById('banish').innerHTML='<section><h2>Banish plan for 👻 '+esc(g)+'</h2><p class="small">Plan only — Spec Ghost never deletes, moves, or edits files. Approval first, by hand, always.</p><pre>'+esc(d.actions.join('\n'))+'</pre></section>';
+ }catch(e){
+  document.getElementById('banish').innerHTML='<section><h2>Banish plan for 👻 '+esc(g)+'</h2><p>⚰️ Could not load the plan — please try again.</p></section>';
+ }finally{
+  if(btn){btn.disabled=false;btn.textContent='Banish plan';}
+ }
 }
 scanTarget('sample');
 </script></main></body></html>

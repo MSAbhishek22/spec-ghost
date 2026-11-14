@@ -81,13 +81,14 @@ def mentioned_files(spec_text):
     return found
 
 
+def _referenced(needle, hay):
+    """True if normalised code text `hay` references normalised spec
+    name `needle` (plain mention, or an explicit marker form)."""
+    return needle in hay or f"spec: {needle}" in hay or f".kiro/specs/{needle}" in hay
+
+
 def spec_referenced_by(spec_name, code_text):
-    hay = _norm(code_text)
-    needle = _norm(spec_name)
-    if needle in hay:
-        return True
-    # Explicit marker forms, e.g. "spec: room-lighting"
-    return f"spec: {needle}" in hay or f".kiro/specs/{needle}" in hay
+    return _referenced(_norm(spec_name), _norm(code_text))
 
 
 def scan(root):
@@ -95,21 +96,30 @@ def scan(root):
     root = os.path.abspath(root)
     specs = discover_specs(root)
     code_files = discover_code_files(root)
-    code_texts = {}
+    # Normalise each code file's text ONCE and reuse it for every spec
+    # check below. (Previously spec_referenced_by re-ran _norm over the
+    # full text of every file for every spec — twice over, in the refs
+    # loop and again in the unmarked loop. Same results, far less work.)
+    norm_texts = {}
     for rel in code_files:
         with open(os.path.join(root, rel), encoding="utf-8", errors="ignore") as f:
-            code_texts[rel] = f.read()
+            norm_texts[rel] = _norm(f.read())
+    norm_names = {name: _norm(name) for name in specs}
+    # Mentioned files are likewise computed once per spec and reused
+    # for both the stale check and the report.
+    mentions = {name: mentioned_files(s["text"]) for name, s in specs.items()}
 
     covered, ghosts, stale = [], [], []
     spec_to_code = {}
     for name, spec in sorted(specs.items()):
-        refs = [rel for rel in code_files if spec_referenced_by(name, code_texts[rel])]
+        needle = norm_names[name]
+        refs = [rel for rel in code_files if _referenced(needle, norm_texts[rel])]
         spec_to_code[name] = refs
         if refs:
             covered.append(name)
         else:
             ghosts.append(name)
-        missing = [p for p in mentioned_files(spec["text"]) if not os.path.exists(os.path.join(root, p))]
+        missing = [p for p in mentions[name] if not os.path.exists(os.path.join(root, p))]
         # Only count a mention as stale if it looks like a project path
         # (contains a slash or is a known code file), to avoid flagging
         # prose words like "README.md" mentioned generically without a path.
@@ -119,7 +129,7 @@ def scan(root):
 
     unmarked = []
     for rel in code_files:
-        if not any(spec_referenced_by(name, code_texts[rel]) for name in specs):
+        if not any(_referenced(needle, norm_texts[rel]) for needle in norm_names.values()):
             unmarked.append(rel)
 
     return {
@@ -131,7 +141,7 @@ def scan(root):
         "unmarked_code_files": unmarked,
         "stale_specs": stale,
         "spec_to_code": spec_to_code,
-        "specs": {name: {"dir": s["dir"], "files": s["files"], "mentioned_files": mentioned_files(s["text"])} for name, s in specs.items()},
+        "specs": {name: {"dir": s["dir"], "files": s["files"], "mentioned_files": mentions[name]} for name, s in specs.items()},
     }
 
 
@@ -152,3 +162,27 @@ def banish_plan(ghost_name, report):
         "4. If UNSURE: leave it — a ghost is a question, not a bug. Re-run after the next change.",
     ]
     return {"ghost": ghost_name, "plan": "Banish plan (plan only — no files were changed).", "actions": actions, "deletes_anything": False}
+
+
+def banish_plan_for(root, ghost_name):
+    """The banish plan for one ghost, without paying for a full scan.
+
+    banish_plan() needs only two facts — is this spec a ghost, and
+    which files belong to it — so instead of scan() (every spec's
+    references, the unmarked list, stale analysis) this discovers the
+    specs, then reads each code file once, normalises it once, and
+    stops at the first file that references the ghost. Returns exactly
+    what banish_plan(ghost_name, scan(root)) returns.
+    """
+    root = os.path.abspath(root)
+    specs = discover_specs(root)
+    if ghost_name not in specs:
+        return banish_plan(ghost_name, {"ghost_specs": [], "specs": {}})
+    needle = _norm(ghost_name)
+    for rel in discover_code_files(root):
+        with open(os.path.join(root, rel), encoding="utf-8", errors="ignore") as f:
+            hay = _norm(f.read())
+        if _referenced(needle, hay):
+            return banish_plan(ghost_name, {"ghost_specs": [], "specs": {}})
+    return banish_plan(ghost_name, {"ghost_specs": [ghost_name],
+                                    "specs": {ghost_name: specs[ghost_name]}})
