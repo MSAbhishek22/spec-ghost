@@ -1,3 +1,19 @@
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1f6feb,100:8957e5&height=190&section=header&text=Spec%20Ghost&fontSize=44&fontColor=ffffff&animation=fadeIn&desc=Finds%20specs%20with%20no%20code%20%E2%80%94%20and%20code%20with%20no%20spec&descSize=16"/>
+
+> **📖 The Story** Every spec-driven project quietly rots: specs that were never implemented, code nobody specified, and specs still pointing at files deleted months ago. Built for Kiroween 2026, Spec Ghost walks the repo like a haunted house and names every ghost it finds.
+>
+> **🎯 The Problem** Nobody can see where specs and code have drifted apart until a stale spec sends someone building the wrong thing.
+>
+> **👥 Who It's For** Developers and teams practising spec-driven development, especially with Kiro.
+>
+> **🔑 The USP** A fully deterministic scan — no LLM, same repo, same verdict every run — across all three ghost types, with tests at 14/14.
+>
+> **🚀 What's Next** More spec formats and drift patterns, so fewer ghosts stay invisible.
+>
+> **🔗 Live: [spec-ghost-green.vercel.app](https://spec-ghost-green.vercel.app)**
+
+---
+
 # Spec Ghost — Haunted Kiro specs, found before they haunt you
 
 > **One line:** Spec Ghost reads a repo's Kiro specs (`.kiro/specs/`)
