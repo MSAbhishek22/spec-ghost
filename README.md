@@ -5,6 +5,19 @@
 > ghosts (orphan specs nobody implemented), which code has no spec,
 > and which specs point at files that no longer exist.
 
+## Live demo
+
+**Try it now: https://spec-ghost-green.vercel.app** — deployed on
+Vercel (free tier) on 14 Nov 2026 from commit `670b8fac`, verified
+live the same day: the page loads signed-out, `/health` answers
+`{status: ok, service: spec-ghost}`, and the sample scan runs
+end-to-end.
+
+> ⚠️ **URL warning:** https://spec-ghost.vercel.app is a
+> **different project's app** — it is *not* this deployment and
+> must never be referenced as ours. The `-green` URL above is the
+> only production URL for this project.
+
 ## Why this idea, and why it fits Kiroween
 
 Kiroween is about building *with* Kiro — spec-driven development with
@@ -25,9 +38,12 @@ wrapper. It is a developer tool for the exact workflow this
 hackathon celebrates.
 
 **Kiroween status, honestly:** the code is published in a public
-GitHub repo — https://github.com/MSAbhishek22/spec-ghost (head
-`6d09f7ba`, MIT) — but the project is **not deployed and not
-submitted**, and this local folder is the working copy, not a git
+GitHub repo — https://github.com/MSAbhishek22/spec-ghost (MIT) —
+and the app is **deployed and live** at
+https://spec-ghost-green.vercel.app (Vercel, deployed 14 Nov 2026
+from commit `670b8fac`; see the Live demo section above and
+`deployment/RELEASE_MANIFEST.json`). It is **not yet submitted**
+to Kiroween, and this local folder is the working copy, not a git
 checkout of that repo. It is **not** a before-December cash track — Kiroween
 winners are announced around February 2027, per the Devpost-linked
 summaries verified 3 Nov 2026 — so do not claim December winnings
@@ -122,12 +138,15 @@ must not become a file-reading service for arbitrary paths.
 - **Stale detection is path-based.** It flags mentioned paths
   with a slash that do not exist; generic prose without a path
   is not flagged.
-- **Not deployed, not submitted, no submission video.** A public
-  GitHub repo DOES exist:
-  https://github.com/MSAbhishek22/spec-ghost (head `6d09f7ba`).
-  The only video is a local internal draft (see
-  `submission/DEMO_VIDEO_MANIFEST.md`) — never a submission video.
-  Deployment and submission are still user taps, listed below.
+- **Deployed, but not submitted; the only video is a local draft.**
+  Live: https://spec-ghost-green.vercel.app (Vercel, deployed
+  14 Nov 2026 from commit `670b8fac`, production-verified — see
+  `deployment/RELEASE_MANIFEST.json`). Public GitHub repo:
+  https://github.com/MSAbhishek22/spec-ghost. No Kiroween
+  submission has been filed yet, and the only video is a local
+  internal draft (see `submission/DEMO_VIDEO_MANIFEST.md`) —
+  never a submission video. The remaining steps are user taps,
+  listed below.
 
 ## What still needs the user (items 2–5 have not happened)
 
@@ -148,7 +167,8 @@ must not become a file-reading service for arbitrary paths.
    upload it public on YouTube.
 5. **Devpost submit (user, own browser):** submit by
    **5 Dec 2026 03:30 IST** at https://kiroween.devpost.com/,
-   with the repo (including `/.kiro`), the video, and the
+   with the repo (including `/.kiro`), the live URL
+   (https://spec-ghost-green.vercel.app), the video, and the
    Kiro write-up. Winners are announced around Feb 2027.
 
 ## Files
@@ -157,6 +177,7 @@ must not become a file-reading service for arbitrary paths.
 - `app/server.py` — stdlib web server (two allowed targets only)
 - `app/index.html` — haunted-house UI (dark, candlelight amber)
 - `run.py` — serve or scan
+- `api/index.py` + `vercel.json` — Vercel WSGI adapter (production)
 - `tests/test_specghost.py` — unittest tests
 - `.kiro/steering/` + `.kiro/specs/spec-ghost/` — real Kiro specs
 - `sample/` — bundled demo haunted house
